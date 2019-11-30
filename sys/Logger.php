@@ -1,5 +1,7 @@
 <?php
-class Logger extends DBObject{
+namespace chetch\sys;
+
+class Logger extends \chetch\db\DBObject{
 	const LOG_TO_SCREEN = 1;
 	const LOG_TO_DATABASE = 2;
 	
@@ -9,7 +11,7 @@ class Logger extends DBObject{
 	private $logOptions;
 	
 	public static function initialise(){
-		$t = Config::get('SYS_LOGS_TABLE', 'sys_logs');
+		$t = \chetch\Config::get('SYS_LOGS_TABLE', 'sys_logs');
 		self::setConfig('TABLE_NAME', $t);
 	}
 	

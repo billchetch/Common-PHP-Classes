@@ -1,4 +1,6 @@
 <?php
+namespace chetch;
+
 class Config{
 	private static $config = array();
 	private static $keys = array();

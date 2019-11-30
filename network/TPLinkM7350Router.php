@@ -1,4 +1,6 @@
 <?php
+namespace chetch\network;
+
 class TPLinkM7350Router extends Router{
 	
 	function addCurlOptions(&$ch, $req, $params = null, $method = null){

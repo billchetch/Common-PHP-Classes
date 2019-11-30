@@ -1,5 +1,5 @@
 <?php
-namespace chetch\common\network;
+namespace chetch\network;
 
 class Network{
 	static function getLANIP(){

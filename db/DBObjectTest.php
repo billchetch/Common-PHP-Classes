@@ -1,4 +1,6 @@
 <?php
+namespace chetch\db;
+
 class DBObjectTest extends DBObject{
 	
 	public static function initialise(){
@@ -16,6 +18,6 @@ class DBObjectTest extends DBObject{
 	public function __construct($rowdata){
 		parent::__construct($rowdata);
 		
-		$this->assignR2V($this->timestamp, 'timestamp');
+		
 	}
 }

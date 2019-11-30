@@ -1,4 +1,8 @@
 <?php
+namespace chetch\db;
+
+use \PDO as PDO;
+
 class DBObject{
 	protected static $dbh = null; //PDO object
 	
@@ -320,7 +324,7 @@ class DBObject{
 	
 	public function setID($id){
 		$this->set('id', $id);
-		$this->assignR2V($this->id, 'id');
+		$this->bindR2V($this->id, 'id');
 	}
 	public function getID(){
 		return $this->id;
@@ -338,6 +342,7 @@ class DBObject{
 		if(empty($this->rowdata))$this->rowdata = array();
 		foreach($rd as $k=>$v){
 			$this->rowdata[$k] = $v;
+			
 		}
 	}
 	
@@ -348,6 +353,7 @@ class DBObject{
 	public function clearRowData($newRowData = null){
 		$this->rowdata = array();
 		$this->id = null;
+		
 		if($newRowData)$this->setRowData($newRowData);
 	}
 	
@@ -384,10 +390,6 @@ class DBObject{
 			if(!$this->isEqual($k, $v, $this->rowdata, $this->rowdataOriginal))return true;
 		}	
 		return false;
-	}
-	
-	protected function assignR2V(&$val, $fieldName){
-		if(isset($this->rowdata) && isset($this->rowdata[$fieldName]))$val = $this->rowdata[$fieldName];
 	}
 	
 	public function createUpdateStatement($fieldList){

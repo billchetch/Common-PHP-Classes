@@ -1,4 +1,6 @@
 <?php
+namespace chetch\network;
+
 class DLinkDWR932CRouter extends Router{
 	function request($req, $params = null, $method='GET'){
 		if($this->loggedIn && $this->token){

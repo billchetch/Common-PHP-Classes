@@ -1,5 +1,7 @@
 <?php
-class SysInfo extends DBObject{
+namespace chetch\sys;
+
+class SysInfo extends \chetch\db\DBObject{
 	
 	public static function initialise(){
 		$t = Config::get('SYS_INFO_TABLE', 'sys_info');

@@ -1,4 +1,6 @@
 <?php
+namespace chetch\network;
+
 class HuaweiE5673Router extends Router{
 	function parseRequest($data){
 		return $data;

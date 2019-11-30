@@ -1,4 +1,6 @@
 <?php
+namespace chetch\network;
+
 class Router{
 	public $loggedIn = false;
 	public $protocol; 
