@@ -4,7 +4,7 @@ namespace chetch\sys;
 class SysInfo extends \chetch\db\DBObject{
 	
 	public static function initialise(){
-		$t = Config::get('SYS_INFO_TABLE', 'sys_info');
+		$t = \chetch\Config::get('SYS_INFO_TABLE', 'sys_info');
 		self::setConfig('TABLE_NAME',  $t);
 		self::setConfig('SELECT_ROW_FILTER', "data_name=:data_name");
 	}

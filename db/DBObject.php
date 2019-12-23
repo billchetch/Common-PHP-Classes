@@ -184,6 +184,14 @@ class DBObject{
 		return $instances;
 	}
 	
+	public static function collection2rows($instances){
+		$rows = array();
+		foreach($instances as $inst){
+			$rows[] = $inst->getRowData();
+		}
+		return $rows;
+	}
+	
 	public static function isValidFieldName($fieldName){
 		return preg_match('/^[A-Za-z0-9_]+$/', $fieldName);
 	}
@@ -324,7 +332,7 @@ class DBObject{
 	
 	public function setID($id){
 		$this->set('id', $id);
-		$this->bindR2V($this->id, 'id');
+		$this->id = $id;
 	}
 	public function getID(){
 		return $this->id;

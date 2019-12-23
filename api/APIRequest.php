@@ -1,6 +1,9 @@
 <?php
 namespace chetch\api;
 
+use chetch\api\APIException as APIException;
+use \Exception as Exception;
+
 class APIRequest extends \chetch\db\DBObject{
 	
 	public static function initialise(){

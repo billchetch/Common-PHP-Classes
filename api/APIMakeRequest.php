@@ -1,6 +1,9 @@
 <?php
 namespace chetch\api;
 
+use chetch\api\APIException as APIException;
+use \Exception as Exception;
+
 class APIMakeRequest extends APIRequest{
 	
 	public static function createRequest($baseURL, $request, $method, $params = null, $readFromCache = false){
@@ -8,9 +11,19 @@ class APIMakeRequest extends APIRequest{
 		return $req;
 	}
 	
+	public static function createGetRequest($baseURL, $request, $params = null, $readFromCache = false){
+		$req = parent::createRequest($baseURL, $request, 'GET', $params, $readFromCache);
+		return $req;
+	}
+	
 	public function __construct($rowdata){
 		parent::__construct($rowdata);
 		
+	}
+	
+	protected function processResponse($data, $url){
+		$this->set('data', $data);
+		return json_decode($data, true);
 	}
 	
 	public function request(){
@@ -56,15 +69,16 @@ class APIMakeRequest extends APIRequest{
 		    curl_close($ch);
 		    
 		    if($errno != 0){
-		    	throw new Exception("cURL error: $error", $errno);
+		    	throw new APIException("cURL error: $error", $errno);
 		    } else if($info['http_code'] >= 400){
-		    	throw new Exception("HTTP Error ".$info['http_code'].' '.$data, $info['http_code']);
+		    	throw new APIException("HTTP Error ".$info['http_code'].' '.$data, $info['http_code']);
 			} else {
-				$this->set('data', $data);
-				return $data;
+				return $this->processResponse($data, $url);
 	        }
-		} catch (Exception $e){
+		} catch (APIException $e){
 			throw $e;
+		} catch (Exception $e){
+			throw $e; //TODO:: turn this in to an API Exception
 		}
 	}
 	
