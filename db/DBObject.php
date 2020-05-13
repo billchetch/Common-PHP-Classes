@@ -2,6 +2,7 @@
 namespace chetch\db;
 
 use \PDO as PDO;
+use \Exception as Exception;
 
 class DBObject{
 	protected static $dbh = null; //PDO object
