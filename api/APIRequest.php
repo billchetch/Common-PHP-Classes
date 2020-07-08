@@ -13,11 +13,12 @@ class APIRequest extends \chetch\db\DBObject{
 		self::setConfig('SELECT_ROW_FILTER', "$t.base_url=':base_url' AND $t.request=':request' AND $t.method=':method'");
 	}
 	
-	public static function createRequest($baseURL, $request, $method, $params = null, $readFromCache = false){
+	public static function createRequest($baseURL, $request, $method, $params = null, $payload = null, $readFromCache = false){
 		if(empty($baseURL))throw new Exception("APIRequest::createRequest no base URL supplied");
 		if(empty($request))throw new Exception("APIRequest::createRequest no request supplied");
 		if(empty($method))throw new Exception("APIRequest::createRequest no method supplied");
 		
+		$r = array();
 		$r['base_url'] = trim(strtolower($baseURL));
 		$r['request'] =  trim(strtolower($request));
 		$r['method'] = trim(strtoupper($method));
@@ -32,6 +33,14 @@ class APIRequest extends \chetch\db\DBObject{
 				$req->setParams($params);
 			}
 		}
+
+		if($payload){
+			if(is_string($payload)){ //we assume this is JSON
+				$req->setPayload(json_decode($payload, true));
+			} else {
+				$req->setPayload($payload);
+			}
+		}
 		
 		return $req;
 		
@@ -39,6 +48,7 @@ class APIRequest extends \chetch\db\DBObject{
 	
 	
 	protected $params;
+	protected $payload;
 	
 	public function __construct($rowdata){
 		parent::__construct($rowdata);
@@ -47,6 +57,10 @@ class APIRequest extends \chetch\db\DBObject{
 	
 	public function setParams($p){
 		$this->params = $p;
+	}
+
+	public function setPayload($p){
+		$this->payload = $p;
 	}
 	
 }

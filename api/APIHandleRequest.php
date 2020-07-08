@@ -6,14 +6,14 @@ use \Exception as Exception;
 
 abstract class APIHandleRequest extends APIRequest{
 	
-	public static function createHandler($request, $method, $params = null, $readFromCache = self::READ_MISSING_VALUES_ONLY){
-		$req = parent::createRequest("/", $request, $method, $params, $readFromCache);
+	public static function createHandler($request, $method, $params = null, $payload = null, $readFromCache = self::READ_MISSING_VALUES_ONLY){
+		$req = parent::createRequest("/", $request, $method, $params, $payload, $readFromCache);
 		return $req;
 	}
 	
 	public static function output($data2output){
 		header('Content-Type: application/json');
-		header('X-Server-Time: '.time());
+		header('X-Server-Time: '.self::now());
 		header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 		header("Pragma: no-cache"); // HTTP 1.0.
 		header("Expires: 0"); // Proxies.
@@ -29,6 +29,13 @@ abstract class APIHandleRequest extends APIRequest{
 		$ex['http_code'] = $httpCode;
 		static::output($ex);
 	}
+
+	public static function about(){
+		$data = array();
+		$data['api_version'] = self::getConfig('API_VERSION', "1.0");
+		$data['server_time'] = self::now();
+		return $data;
+	}
 	
 	public function __construct($rowdata){
 		parent::__construct($rowdata);
@@ -41,6 +48,7 @@ abstract class APIHandleRequest extends APIRequest{
 			$req = $this->get('request');
 			$method = $this->get('method');
 			$params = $this->params;
+			$payload = $this->payload;
 			
 			$data = array();
 			if($req == 'batch'){ //process a number of these in one go
@@ -59,7 +67,15 @@ abstract class APIHandleRequest extends APIRequest{
 						break;
 						
 					case 'PUT':
-						$data = $this->processPutRequest($req, $params);
+						$data = $this->processPutRequest($req, $params, $payload);
+						break;
+
+					case 'POST':
+						$data = $this->processPostRequest($req, $params, $payload);
+						break;
+
+					case 'DELETE':
+						$data = $this->processDeleteRequest($req, $params);
 						break;
 				}
 				
@@ -69,23 +85,75 @@ abstract class APIHandleRequest extends APIRequest{
 			}
 		
 		} catch (Exception $e){
-			if($output){
-				static::exception($e);	
-			} else {
-				throw $e;
-			}
+			$this->handleException($e);
 		}
 	}
 	
+	protected function handleException(Exception $e){
+		throw $e;
+	}
+
 	protected function processGetRequest($request, $params){
 		throw new Exception("Override APIHandleRequest::processGetRequest");	
 	}
 	
-	protected function processPutRequest($request, $params){
+	protected function processGetResourceRequest($request, $params){
+		$requestParts = explode('/', $request);
+		$resourceType = $requestParts[1];
+		$resourceDirectory = $requestParts[2];
+		$resourceID = $requestParts[3];	
+
+		$contentTypes = array();
+		switch($resourceType){
+			case 'image':
+				$contentTypes['image/jpeg'] = array('jpg','jpeg');
+				$contentTypes['image/png'] = array('png');
+				break;
+		}
+
+		$resourcePathBase = getcwd()."\\resources\\$resourceDirectory\\";
+		$resourcePaths = array();
+		array_push($resourcePaths, $resourcePathBase.$resourceID);
+		$this->addResourePaths($resourcePaths, $resourcePathBase, $resourceType, $resourceDirectory, $resourceID);
+
+		$resourceFile = null;
+		$headerInfo = array();
+		foreach($resourcePaths as $resourcePath){
+			foreach($contentTypes as $contentType=>$extensions){
+				foreach($extensions as $extension){
+					$filepath = $resourcePath.'.'.$extension;
+					if(file_exists($filepath)){
+						$resourceFile = $filepath;
+						$headerInfo["Content-Type"] = $contentType;
+						$headerInfo["Content-Length"] = filesize($resourceFile);
+						break;
+					}
+				}
+				if($resourceFile)break;
+			}
+			if($resourceFile)break;
+		}
+				
+		if(!$resourceFile){
+			throw new Exception("Unable to find resource $request");
+		}
+				
+		foreach($headerInfo as $k=>$v){
+			header("$k: $v");
+		}
+		readfile($resourceFile);
+		die;
+	}
+
+	protected function addResourePaths(&$resourcePaths, $resourcePathBase, $resourceType, $resourceDirectory, $resourceID){
+	
+	}
+
+	protected function processPutRequest($request, $params, $payload){
 		throw new Exception("Override APIHandleRequest::processPutRequest");
 	}
 	
-	protected function processPostRequest($request, $params){
+	protected function processPostRequest($request, $params, $payload){
 		throw new Exception("Override APIHandleRequest::processPostRequest");
 	}
 	

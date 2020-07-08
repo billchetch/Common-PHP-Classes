@@ -129,6 +129,13 @@ class DBObject{
 		return $inst;
 	}
 	
+	public static function deleteByID($id){
+		$d = array('id'=>$id);
+		$inst = static::createInstance($d, null, false);
+		$inst->delete();
+		return $id;
+	}
+
 	public static function createCollection($params = null, $filter = null, $sort = null, $limit = null){
 		self::init();
 		
@@ -185,6 +192,11 @@ class DBObject{
 		return $instances;
 	}
 	
+	public static function createCollectionAsRows($params = null, $filter = null, $sort = null, $limit = null){
+		$instances = static::createCollection($params, $filter, $sort, $limit);
+		return static::collection2rows($instances);
+	}
+
 	public static function collection2rows($instances){
 		$rows = array();
 		foreach($instances as $inst){
@@ -193,6 +205,15 @@ class DBObject{
 		return $rows;
 	}
 	
+	protected function getLimitFromParams($params, $pageNumberField = 'pagenumber', $pageSizeField = 'pagesize'){
+		if(!isset($params[$pageNumberField]))return null;
+
+		$pageNumber = $params[$pageNumberField] < 1 ? 1 : $params[$pageNumberField];
+		$pageSize = isset($params[$pageSizeField]) ? $params[$pageSizeField] : 100;
+		
+		return (($pageNumber - 1)*$pageSize).','.$pageSize;
+	}
+
 	public static function isValidFieldName($fieldName){
 		return preg_match('/^[A-Za-z0-9_]+$/', $fieldName);
 	}
@@ -288,11 +309,11 @@ class DBObject{
 		return $sql;
 	}
 	
-	public static function now(){
+	public static function now($includeOffset = true){
 		if(empty(self::$dbh))throw new Exception("Database has not been set");
 		$stmt = self::$dbh->query('SELECT NOW()');
 		$row = $stmt->fetch();
-		return $row[0];
+		return $row[0].($includeOffset ? ' '.self::tzoffset() : '');
 	}
 	
 	public static function setUTC(){
@@ -319,6 +340,13 @@ class DBObject{
 		return $row[0];
 	}
 	
+	public static function date($time, $includeOffset = true){
+		return date('Y-m-d'.($includeOffset ? ' '.self::tzoffset() : ''), $time);
+	}
+
+	public static function datetime($time, $includeOffset = true){
+		return date('Y-m-d H:i:s'.($includeOffset ? ' '.self::tzoffset() : ''), $time);
+	}
 	
 	/*
 	 * Insatance methods
@@ -346,12 +374,15 @@ class DBObject{
 	public function get($field){
 		return isset($this->rowdata[$field]) ? $this->rowdata[$field] : null;
 	}
+
+	protected function remove($field){
+		if(isset($this->rowdata))unset($this->rowdata[$field]);
+	}
 	
 	public function setRowData($rd){
 		if(empty($this->rowdata))$this->rowdata = array();
 		foreach($rd as $k=>$v){
 			$this->rowdata[$k] = $v;
-			
 		}
 	}
 	

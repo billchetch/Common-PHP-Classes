@@ -73,6 +73,5 @@ class Logger extends \chetch\db\DBObject{
 			$this->add(array('log_name'=>$logName));
 		}
 	}
-	
 }
 ?>

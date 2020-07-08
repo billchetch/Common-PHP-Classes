@@ -14,5 +14,8 @@ class DB{
 		DBObject::setConnection(self::$dbh);
 	}
 	
-	
+	public static function setUTC(){
+		if(empty(self::$dbh))throw new Exception("Database has not been set");
+		self::$dbh->query('SET time_zone = "+00:00"'); //UTC for all
+	}
 }
