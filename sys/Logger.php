@@ -44,7 +44,7 @@ class Logger extends \chetch\db\DBObject{
 	
 	public function start($logOptions = null){
 		if($logOptions)$this->setLogOptions($logOptions);
-		$entry = "Starting ".$this->get('log_name')." at ".self::now().' '.self::tzoffset();
+		$entry = "Starting ".$this->get('log_name')." at ".self::now();
 		$this->info($entry);
 	}
 	

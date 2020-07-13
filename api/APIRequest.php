@@ -46,7 +46,10 @@ class APIRequest extends \chetch\db\DBObject{
 		
 	}
 	
-	
+	/*
+	* Instance fields and methods
+	*/
+
 	protected $params;
 	protected $payload;
 	

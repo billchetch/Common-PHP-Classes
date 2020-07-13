@@ -15,7 +15,7 @@ class DBObject{
 	
 	private $rowdata;
 	private $rowdataOriginal;
-	private $id;
+	public $id;
 	
 	public static function getConfig($key, $defaultVal = null){
 		$class = static::class;
@@ -140,44 +140,46 @@ class DBObject{
 		self::init();
 		
 		$stmt = null;
-		if($filter == null && $sort == null){
-			if(empty(self::getConfig('SELECT_ROWS_STATEMENT')))throw new Exception("No SELECT ROWS statement set");
-			$stmt = self::getConfig('SELECT_ROWS_STATEMENT');
-		} else {
-			$select = self::getConfig('SELECT_SQL');
-			if(!$select)throw new Exception("DBObject::createCollection no SELECT_SQL present in config");
-			$sql = self::createSelectSQL($select, $filter, $sort, $limit);
+		if($filter === null)$filter = self::getConfig('SELECT_DEFAULT_FILTER', null);
+		if($sort === null)$sort = self::getConfig('SELECT_DEFAULT_SORT', null);
+		if($limit === null)$limit = self::getConfig('SELECT_DEFAULT_LIMIT', null);
+
+		$select = self::getConfig('SELECT_SQL');
+		if(!$select)throw new Exception("DBObject::createCollection no SELECT_SQL present in config");
+		$sql = self::createSelectSQL($select, $filter, $sort, $limit);
+		if($params){
+			//we make parameters passed commensurate with parameters listed in SQL (if possible)
+			$bparams = self::extractBoundParameters($sql);
+			$keys = array_keys($params);
+			$p = array();
+			for($i = 0; $i < count($bparams); $i++){
+				$k = $bparams[$i];
+				if(!in_array($k, $keys))continue; //throw new Exception("DBObject::createCollection $k is a bound paramater but is not specified in 'params'");
+				$p[$k] = $params[$k];
+			}
+			$params = $p;
 			
-			if($params){
-				//we make parameters passed commensurate with parameters listed in SQL (if possible)
-				$bparams = self::extractBoundParameters($sql);
-				$keys = array_keys($params);
-				$p = array();
-				for($i = 0; $i < count($bparams); $i++){
-					$k = $bparams[$i];
-					if(!in_array($k, $keys))throw new Exception("DBObject::createCollection $k is a bound paramater but is not specified in 'params'");
-					$p[$k] = $params[$k];
-				}
-				$params = $p;
-				
-				//now we deal with array values
-				foreach($params as $param=>$value){
-					if(is_array($value)){
-						unset($params[$param]);
-						$replaceWith = "";
-						for($i = 0; $i < count($value); $i++){
-							$newParam = $param.$i;
-							$replaceWith .= ($replaceWith ? "," : "").':'.$newParam;
-							$params[$newParam] = $value[$i];	
-						}
-						$sql = str_replace(':'.$param, $replaceWith, $sql);
+			
+			//now we deal with array values
+			foreach($params as $param=>$value){
+				if(is_array($value)){
+					unset($params[$param]);
+					$replaceWith = "";
+					for($i = 0; $i < count($value); $i++){
+						$newParam = $param.$i;
+						$replaceWith .= ($replaceWith ? "," : "").':'.$newParam;
+						$params[$newParam] = $value[$i];	
 					}
+					$sql = str_replace(':'.$param, $replaceWith, $sql);
+				} else {
+					$sql = str_replace(':'.$param, $value, $sql);
 				}
 			}
-			
-			$stmt = self::$dbh->prepare($sql);
-			
 		}
+		
+		
+		$stmt = self::$dbh->prepare($sql);
+			
 		if(empty($stmt))throw new Exception("No statement for collection query");
 		
 		try{
@@ -187,7 +189,7 @@ class DBObject{
 		}
 		$instances = array();
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-			$instances[] = self::createInstance($row, false);
+			$instances[] = static::createInstance($row, false);
 		}
 		return $instances;
 	}
@@ -397,6 +399,10 @@ class DBObject{
 		if($newRowData)$this->setRowData($newRowData);
 	}
 	
+	protected function assignR2V(&$val, $fieldName){
+		if(isset($this->rowdata[$fieldName]))$val = $this->rowdata[$fieldName];
+	}
+
 	//TODO: this doesn't need to be instance method
 	protected function isEqual($fieldName, $value, $ar1, $ar2){
 		if(gettype($ar1) != "array" || gettype($ar2) != "array")throw new Exception("DBObject::isEqual comparison must occur between arrays");

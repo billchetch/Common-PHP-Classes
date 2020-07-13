@@ -5,7 +5,10 @@ use chetch\api\APIException as APIException;
 use \Exception as Exception;
 
 abstract class APIHandleRequest extends APIRequest{
-	
+	const SOURCE_CACHE = 1;
+	const SOURCE_DATABASE = 2;
+	const SOURCE_REMOTE = 3;
+
 	public static function createHandler($request, $method, $params = null, $payload = null, $readFromCache = self::READ_MISSING_VALUES_ONLY){
 		$req = parent::createRequest("/", $request, $method, $params, $payload, $readFromCache);
 		return $req;
@@ -37,9 +40,11 @@ abstract class APIHandleRequest extends APIRequest{
 		return $data;
 	}
 	
+	public $source;
+
 	public function __construct($rowdata){
 		parent::__construct($rowdata);
-		
+		$this->source = \chetch\Config::get('API_SOURCE', self::SOURCE_DATABASE);
 	}
 	
 	public function handle($output = true){

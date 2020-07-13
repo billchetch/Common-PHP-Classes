@@ -1,6 +1,8 @@
 <?php
 namespace chetch;
 
+use \Exception as Exception;
+
 //General utility functions
 class Utils{
 	
