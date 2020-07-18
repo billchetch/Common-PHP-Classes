@@ -5,8 +5,8 @@ class SysInfo extends \chetch\db\DBObject{
 	
 	public static function initialise(){
 		$t = \chetch\Config::get('SYS_INFO_TABLE', 'sys_info');
-		self::setConfig('TABLE_NAME',  $t);
-		self::setConfig('SELECT_ROW_FILTER', "data_name=:data_name");
+		static::setConfig('TABLE_NAME',  $t);
+		static::setConfig('SELECT_ROW_FILTER', "data_name=:data_name");
 	}
 	
 	private function sync($dataName){
@@ -28,7 +28,6 @@ class SysInfo extends \chetch\db\DBObject{
 		}
 		
 		$this->set('data_value', $dataValue);
-		$this->set('updated', self::now());
 		
 		return $this->write();
 	}

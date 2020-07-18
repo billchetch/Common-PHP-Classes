@@ -455,6 +455,7 @@ class DBObject{
 			$stmt = self::getConfig('SELECT_ROW_STATEMENT');
 			$params = self::getConfig('SELECT_ROW_PARAMS');
 		}
+
 		if(empty($stmt)){
 			return; //fail silently
 		}
