@@ -400,7 +400,7 @@ class DBObject{
 		$this->rowdata = array();
 		$this->id = null;
 		
-		if($newRowData)$this->asignRowData($newRowData);
+		if($newRowData)$this->assignRowData($newRowData);
 	}
 	
 	protected function assignR2V(&$val, $fieldName){
