@@ -355,10 +355,7 @@ class DBObject{
 	 */
 	
 	public function __construct($rowdata = null){
-		$this->rowdata = $rowdata;
-		if($rowdata && isset($rowdata['id'])){
-			$this->setID($rowdata['id']);
-		}
+		$this->assignRowdata($rowdata);
 	}
 	
 	public function setID($id){
@@ -381,6 +378,13 @@ class DBObject{
 		if(isset($this->rowdata))unset($this->rowdata[$field]);
 	}
 	
+	protected function assignRowData($rowdata){
+		$this->rowdata = $rowdata;
+		if($rowdata && isset($rowdata['id'])){
+			$this->setID($rowdata['id']);
+		}
+	}
+
 	public function setRowData($rd){
 		if(empty($this->rowdata))$this->rowdata = array();
 		foreach($rd as $k=>$v){
@@ -396,7 +400,7 @@ class DBObject{
 		$this->rowdata = array();
 		$this->id = null;
 		
-		if($newRowData)$this->setRowData($newRowData);
+		if($newRowData)$this->asignRowData($newRowData);
 	}
 	
 	protected function assignR2V(&$val, $fieldName){
@@ -467,10 +471,7 @@ class DBObject{
 			$stmt->execute($vals);
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			if($row){
-				$this->rowdata = $row;
-				if(!empty($this->rowdata['id'])){
-					$this->setID($this->rowdata['id']);
-				}
+				$this->assignRowData($row);
 				$this->rowdataOriginal = $row;
 			} elseif($requireExistence){
 				throw new Exception("Cannot find row in database");
