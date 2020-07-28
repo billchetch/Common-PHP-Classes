@@ -86,7 +86,8 @@ class DBObject{
 		}
 		self::setConfig('SELECT_ROW_BY_ID_STATEMENT', self::$dbh->prepare(self::getConfig('SELECT_ROW_BY_ID_SQL')));
 		
-		//SELECT_ROW_FILTER is a way to select a row other than by id, not always necessary
+		//SELECT_ROW_FILTER is a way to select a row other than by id, in particular if you pass data to the object that uniquely defines
+		//it and you then want to read from the DB to get the row ID (required for updating)
 		if(!empty(self::getConfig('SELECT_ROW_FILTER'))){
 			$sql = self::createSelectSQL(self::getConfig('SELECT_SQL'), self::getConfig('SELECT_ROW_FILTER'), null);
 			self::setConfig('SELECT_ROW_STATEMENT', self::$dbh->prepare($sql));
@@ -466,8 +467,13 @@ class DBObject{
 		try{ 
 			$vals = array();
 			foreach($params as $param){
-				if(isset($this->rowdata[$param]))$vals[$param] = $this->rowdata[$param]; 
+				//echo "Looking for $param in row data\n";
+				if(isset($this->rowdata[$param])){
+					//echo "Found $param in row data\n";
+					$vals[$param] = $this->rowdata[$param]; 
+				}
 			}
+			
 			$stmt->execute($vals);
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			if($row){

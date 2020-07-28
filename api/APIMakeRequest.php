@@ -31,6 +31,10 @@ class APIMakeRequest extends APIRequest{
 		return $req;
 	}
 	
+	public $error;
+	public $errno;
+	public $info;
+
 	public function __construct($rowdata){
 		parent::__construct($rowdata);
 		
@@ -59,8 +63,8 @@ class APIMakeRequest extends APIRequest{
 		try{
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url); 
-		    	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		    	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, \chetch\Config::get('CURLOPT_CONNECTTIMEOUT',30));
+		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, \chetch\Config::get('CURLOPT_CONNECTTIMEOUT',30));
 			curl_setopt($ch, CURLOPT_TIMEOUT, \chetch\Config::get('CURLOPT_TIMEOUT',30));
 			curl_setopt($ch, CURLOPT_ENCODING, ''); //accept all encodings
 			switch(strtoupper($method)){
@@ -85,18 +89,18 @@ class APIMakeRequest extends APIRequest{
 			}
 			
 			$data = curl_exec($ch); 
-		    	$error = curl_error($ch);
-		    	$errno = curl_errno($ch);
-		    	$info = curl_getinfo($ch);
-		    	curl_close($ch);
+		    $this->error = curl_error($ch);
+		    $this->errno = curl_errno($ch);
+		    $this->info = curl_getinfo($ch);
+		    curl_close($ch);
 		    
-		    	if($errno != 0){
-		    		throw new APIException("cURL error: $error", $errno);
-		    	} else if($info['http_code'] >= 400){
-		    		throw new APIException("HTTP Error ".$info['http_code'].' '.$data, $info['http_code']);
+		    if($this->errno != 0){
+		    	throw new APIException("cURL error: ".$this->error, $this->errno);
+		    } else if($this->info['http_code'] >= 400){
+		    	throw new APIException("HTTP Error ".$this->info['http_code'].' '.$data, $this->info['http_code']);
 			} else {
 				return $this->processResponse($data, $url);
-	        	}
+	        }
 		} catch (APIException $e){
 			throw $e;
 		} catch (Exception $e){
@@ -104,5 +108,14 @@ class APIMakeRequest extends APIRequest{
 		}
 	}
 	
-	
+
+	public function writeBatch($result){
+		foreach($result as $req=>$data){
+			$this->setID(null);
+			$this->set('request', $req);
+			$this->read();
+			$this->set('data', json_encode($data));
+			$this->write();
+		}
+	}
 }

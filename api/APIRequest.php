@@ -10,7 +10,7 @@ class APIRequest extends \chetch\db\DBObject{
 		$t = \chetch\Config::get('API_REQUEST_TABLE', 'api_requests');
 		self::setConfig('TABLE_NAME', $t);
 		self::setConfig('SELECT_SQL', "SELECT *, now() - last_updated AS secs_old FROM $t");
-		self::setConfig('SELECT_ROW_FILTER', "$t.base_url=':base_url' AND $t.request=':request' AND $t.method=':method'");
+		self::setConfig('SELECT_ROW_FILTER', "$t.base_url=:base_url AND $t.request=:request AND $t.method=:method");
 	}
 	
 	public static function createRequest($baseURL, $request, $method, $params = null, $payload = null, $readFromCache = false){
@@ -64,6 +64,11 @@ class APIRequest extends \chetch\db\DBObject{
 
 	public function setPayload($p){
 		$this->payload = $p;
+	}
+
+	public function write($readAgain = false){
+		if($this->getID())$this->set('last_updated', self::now(false));
+		parent::write($readAgain);
 	}
 	
 }

@@ -28,7 +28,8 @@ class SysInfo extends \chetch\db\DBObject{
 		}
 		
 		$this->set('data_value', $dataValue);
-		
+		$this->set('updated', self::now(false));
+
 		return $this->write();
 	}
 	
