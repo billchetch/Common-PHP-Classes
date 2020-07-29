@@ -47,6 +47,11 @@ class Logger extends \chetch\db\DBObject{
 		$entry = "Starting ".$this->get('log_name')." at ".self::now();
 		$this->info($entry);
 	}
+
+	public function finish(){
+		$entry = "Finished ".$this->get('log_name')." at ".self::now();
+		$this->info($entry);
+	}
 	
 	public function info($entry){
 		$this->logEntry('INFO', $entry);
