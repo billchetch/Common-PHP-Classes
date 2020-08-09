@@ -60,10 +60,11 @@ class DBObject{
 		//from the table name we can get columns
 		$t = self::getConfig('TABLE_NAME');
 		$sql = "select column_name from information_schema.columns where table_name = '$t'";
+		
 		$q = self::$dbh->query($sql);
 		$columns = array();
 		while($row = $q->fetch()){
-			$columns[] = $row['column_name'];
+			$columns[] = isset($row['column_name']) ? $row['column_name'] : $row['COLUMN_NAME'];
 		}
 		self::setConfig('TABLE_COLUMNS', $columns);
 		
