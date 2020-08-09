@@ -108,12 +108,10 @@ class DBObject{
 	
 	public static function createInstance($rowdata = null, $readFromDB = self::READ_MISSING_VALUES_ONLY, $requireExistence = false){
 		self::init();
-		
 		$inst = new static($rowdata);
 		
 		if($readFromDB){
 			$inst->read($requireExistence);
-			
 			if($readFromDB == self::READ_MISSING_VALUES_ONLY && $rowdata){
 				foreach($rowdata as $k=>$v){
 					if($k == 'id')continue;
@@ -148,6 +146,7 @@ class DBObject{
 		$select = self::getConfig('SELECT_SQL');
 		if(!$select)throw new Exception("DBObject::createCollection no SELECT_SQL present in config");
 		$sql = self::createSelectSQL($select, $filter, $sort, $limit);
+
 		if($params){
 			//we make parameters passed commensurate with parameters listed in SQL (if possible)
 			$bparams = self::extractBoundParameters($sql);
