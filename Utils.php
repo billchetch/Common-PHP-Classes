@@ -52,7 +52,7 @@ class Utils{
 		$h = (int)substr($tz, 1, 2);
 		$m = (int)substr($tz, 3, 4);
 		$secs = 3600*$h + 60*$m;
-		if($tz[0] == '-')$secs = -$secs;
+		if($tz[0] == '-')$secs = -$secs; //note: used square brackets instead of curly as curly is deprecated
 		return $secs;
 	}
 	
