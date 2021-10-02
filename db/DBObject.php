@@ -90,7 +90,8 @@ class DBObject{
 		//SELECT_ROW_FILTER is a way to select a row other than by id, in particular if you pass data to the object that uniquely defines
 		//it and you then want to read from the DB to get the row ID (required for updating)
 		if(!empty(self::getConfig('SELECT_ROW_FILTER'))){
-			$sql = self::createSelectSQL(self::getConfig('SELECT_SQL'), self::getConfig('SELECT_ROW_FILTER'), null);
+			$filter = str_replace("'", "", self::getConfig('SELECT_ROW_FILTER'));
+			$sql = self::createSelectSQL(self::getConfig('SELECT_SQL'), $filter, null);
 			self::setConfig('SELECT_ROW_STATEMENT', self::$dbh->prepare($sql));
 			self::setConfig('SELECT_ROW_PARAMS', self::extractBoundParameters($sql));
 		}
@@ -147,11 +148,11 @@ class DBObject{
 		$select = self::getConfig('SELECT_SQL');
 		if(!$select)throw new Exception("DBObject::createCollection no SELECT_SQL present in config");
 		$sql = self::createSelectSQL($select, $filter, $sort, $limit);
-
 		if($params){
 			//we make parameters passed commensurate with parameters listed in SQL (if possible)
 			$bparams = self::extractBoundParameters($sql);
 			$keys = array_keys($params);
+			
 			$p = array();
 			for($i = 0; $i < count($bparams); $i++){
 				$k = $bparams[$i];
@@ -159,7 +160,6 @@ class DBObject{
 				$p[$k] = $params[$k];
 			}
 			$params = $p;
-			
 			
 			//now we deal with array values
 			foreach($params as $param=>$value){
@@ -177,8 +177,6 @@ class DBObject{
 				}
 			}
 		}
-		
-		
 		$stmt = self::$dbh->prepare($sql);
 			
 		if(empty($stmt))throw new Exception("No statement for collection query");
@@ -237,7 +235,7 @@ class DBObject{
 				}
 			}
 			if($endPos !== false){
-				$param = substr($ps, 0, $endPos);
+				$param = str_replace("'", "", substr($ps, 0, $endPos));
 				if(strpos($sql, ':'.$param) !== false){
 					array_push($params, $param);
 				}
@@ -473,8 +471,8 @@ class DBObject{
 					$vals[$param] = $this->rowdata[$param]; 
 				}
 			}
-			
 			$stmt->execute($vals);
+			
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			if($row){
 				$this->assignRowData($row);
