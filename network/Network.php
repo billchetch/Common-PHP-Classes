@@ -7,7 +7,8 @@ use \Exception as Exception;
 
 class Network{
 	static public function getLANIP(){
-		$localIP = gethostbyname(trim(exec("hostname")));
+		$hostname = trim(exec("hostname"));
+		$localIP = gethostbyname($hostname);
 		return $localIP;
 	}
 	
@@ -15,7 +16,8 @@ class Network{
 		$hasInternet = self::hasInternet();
 		if($hasInternet){
 			$url = Config::get('WAN_IP_URL', "http://bot.whatismyipaddress.com");
-			return file_get_contents($url);
+			$ip =  @file_get_contents($url);
+			return $ip ? $ip :  "N/A";
 		} else {
 			return null;
 		}
