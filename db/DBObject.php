@@ -152,7 +152,6 @@ class DBObject{
 			//we make parameters passed commensurate with parameters listed in SQL (if possible)
 			$bparams = self::extractBoundParameters($sql);
 			$keys = array_keys($params);
-			
 			$p = array();
 			for($i = 0; $i < count($bparams); $i++){
 				$k = $bparams[$i];
@@ -163,8 +162,9 @@ class DBObject{
 			
 			//now we deal with array values
 			foreach($params as $param=>$value){
+				unset($params[$param]);
+					
 				if(is_array($value)){
-					unset($params[$param]);
 					$replaceWith = "";
 					for($i = 0; $i < count($value); $i++){
 						$newParam = $param.$i;
