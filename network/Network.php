@@ -6,9 +6,13 @@ use chetch\Config as Config;
 use \Exception as Exception;
 
 class Network{
-	static public function getLANIP(){
-		$hostname = trim(exec("hostname"));
-		$localIP = gethostbyname($hostname);
+	static public function getLANIP($useServer = true){
+		if($useServer && isset($_SERVER) && isset($_SERVER['SERVER_ADDR'])){
+			$localIP = $_SERVER['SERVER_ADDR'];
+		} else {
+			$hostname = trim(exec("hostname"));
+			$localIP = gethostbyname($hostname);
+		}
 		return $localIP;
 	}
 	

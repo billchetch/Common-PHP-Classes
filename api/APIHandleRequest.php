@@ -114,6 +114,11 @@ abstract class APIHandleRequest extends APIRequest{
 				$contentTypes['image/jpeg'] = array('jpg','jpeg');
 				$contentTypes['image/png'] = array('png');
 				break;
+
+			case 'apk':
+				$contentTypes['application/vnd.android.package-archive'] = array('apk');
+				$contentTypes['application/java-archive'] = array('jar');
+				break;
 		}
 
 		$resourcePathBase = getcwd()."\\resources\\$resourceDirectory\\";

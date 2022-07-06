@@ -24,6 +24,7 @@ class APIRequest extends \chetch\db\DBObject{
 		$r['method'] = trim(strtoupper($method));
 		
 		$req = self::createInstance($r, $readFromCache);
+		
 		if($params){
 			if(is_string($params)){ //we assume a query string
 				$p = array(); //
