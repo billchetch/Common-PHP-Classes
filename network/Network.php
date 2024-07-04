@@ -42,11 +42,12 @@ class Network{
 		$exec = '';
 		$statistics = '';
 		$returnCode = null;
+		$waitInSecs = $aitInMs / 1000;
 		if(Utils::isWindows()){
 			$exec = "ping -n $count -w $waitInMs $domain";
 			$statistics = "ping statistics for";
 		} else {
-			$exec = "ping -c $count -W $waitInMs $domain";
+			$exec = "ping -c $count -W $waitInSecs $domain";
 			$statistics = "--- $domain ping statistics ---";
 		}
 		$output = array();
