@@ -94,14 +94,14 @@ class Network{
 		$headerFound = false;
 		$idx1 = Utils::isWindows() ? 1 : 0;
 		$idx2 = Utils::isWindows() ? 3 : 1;
-		$key = Utils::isWindows() ? '0.0.0.0' : 'default';
+		$keys = Utils::isWindows() ? array('0.0.0.0') : array('0.0.0.0', 'default');
 		$gatewayIP = null;
 		foreach($output as $l){
 			$l = preg_replace('/\s+/', ' ',$l);
 			$parts = explode(" ", $l);
 			if(count($parts) <= $idx2)continue;
 			if($headerFound){
-				if($parts[$idx1] == $key){
+				if(in_array($parts[$idx1], $keys)){
 					$gatewayIP = $parts[$idx2];
 					break;
 				}
