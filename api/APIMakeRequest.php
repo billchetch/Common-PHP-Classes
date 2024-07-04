@@ -89,7 +89,6 @@ class APIMakeRequest extends APIRequest{
 			}
 			
 			$data = curl_exec($ch);
-			echo $data; 	 
 		    $this->error = curl_error($ch);
 		    $this->errno = curl_errno($ch);
 		    $this->info = curl_getinfo($ch);
