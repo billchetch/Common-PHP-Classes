@@ -5,6 +5,7 @@ use chetch\Utils as Utils;
 use chetch\Config as Config;
 use \Exception as Exception;
 
+
 class Network{
 	static public function getLANIP($useServer = true){
 		if($useServer && isset($_SERVER) && isset($_SERVER['SERVER_ADDR'])){
