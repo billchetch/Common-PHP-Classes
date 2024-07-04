@@ -123,13 +123,18 @@ abstract class APIHandleRequest extends APIRequest{
 				$contentTypes['image/jpeg'] = array('jpg','jpeg');
 				$contentTypes['image/png'] = array('png');
 				break;
+
+			case 'apk':
+				$contentTypes['application/vnd.android.package-archive'] = array('apk');
+				$contentTypes['application/java-archive'] = array('jar');
+				break;
 		}
 
 		$resourcePathBase = getcwd()."\\resources\\$resourceDirectory\\";
 		$resourcePaths = array();
 		array_push($resourcePaths, $resourcePathBase.$resourceID);
 		$this->addResourePaths($resourcePaths, $resourcePathBase, $resourceType, $resourceDirectory, $resourceID);
-
+		
 		$resourceFile = null;
 		$headerInfo = array();
 		foreach($resourcePaths as $resourcePath){
@@ -147,14 +152,16 @@ abstract class APIHandleRequest extends APIRequest{
 			}
 			if($resourceFile)break;
 		}
+
 				
 		if(!$resourceFile){
 			throw new Exception("Unable to find resource $request");
 		}
-				
+		
 		foreach($headerInfo as $k=>$v){
 			header("$k: $v");
 		}
+
 		readfile($resourceFile);
 		die;
 	}

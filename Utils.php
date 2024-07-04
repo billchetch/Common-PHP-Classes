@@ -52,11 +52,19 @@ class Utils{
 		$h = (int)substr($tz, 1, 2);
 		$m = (int)substr($tz, 3, 4);
 		$secs = 3600*$h + 60*$m;
-		if($tz{0} == '-')$secs = -$secs;
+		if($tz[0] == '-')$secs = -$secs; //note: used square brackets instead of curly as curly is deprecated
 		return $secs;
 	}
 	
 	static public function isWindows(){
 		return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+	}
+
+	static public function humanFilesize($bytes, $dec = 2) 
+	{
+    		$size   = array('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+    		$factor = floor((strlen($bytes) - 1) / 3);
+
+    		return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 	}
 }

@@ -6,8 +6,14 @@ use chetch\Config as Config;
 use \Exception as Exception;
 
 class Network{
-	static public function getLANIP(){
-		$localIP = gethostbyname(trim(exec("hostname")));
+	static public function getLANIP($useServer = true){
+		if($useServer && isset($_SERVER) && isset($_SERVER['SERVER_ADDR'])){
+			$localIP = $_SERVER['SERVER_ADDR'];
+		} else {
+			$hostname = trim(exec("hostname -I"));
+			$parts = explode(' ', $hostname);
+			$localIP = $parts[0];
+		}
 		return $localIP;
 	}
 	
@@ -15,7 +21,8 @@ class Network{
 		$hasInternet = self::hasInternet();
 		if($hasInternet){
 			$url = Config::get('WAN_IP_URL', "http://bot.whatismyipaddress.com");
-			return file_get_contents($url);
+			$ip =  @file_get_contents($url);
+			return $ip ? $ip :  "N/A";
 		} else {
 			return null;
 		}
@@ -36,11 +43,12 @@ class Network{
 		$exec = '';
 		$statistics = '';
 		$returnCode = null;
+		$waitInSecs = $waitInMs / 1000;
 		if(Utils::isWindows()){
 			$exec = "ping -n $count -w $waitInMs $domain";
 			$statistics = "ping statistics for";
 		} else {
-			$exec = "ping -c $count -W $waitInMs $domain";
+			$exec = "ping -c $count -W $waitInSecs $domain";
 			$statistics = "--- $domain ping statistics ---";
 		}
 		$output = array();
@@ -68,8 +76,8 @@ class Network{
 				$stats['received'] = trim(str_ireplace('received = ', '', $stats['received']));
 				$stats['lost'] = $stats['transmitted'] - $stats['received'];
 			} else {
-				$stats['transmitted'] = trim(str_ireplace('packets transmitted', '', $stats['transmitted']));
-				$stats['received'] = trim(str_ireplace('packets received', '', $stats['received']));
+				$stats['transmitted'] = trim(str_ireplace(array("packets", "transmitted", " "), '', $stats['transmitted']));
+				$stats['received'] = trim(str_ireplace(array("packets", "received", " "), '', $stats['received']));
 				$stats['lost'] = $stats['transmitted'] - $stats['received'];
 			}
 			$stats['loss'] = $stats['lost'] / $stats['transmitted'];
@@ -86,14 +94,14 @@ class Network{
 		$headerFound = false;
 		$idx1 = Utils::isWindows() ? 1 : 0;
 		$idx2 = Utils::isWindows() ? 3 : 1;
-		$key = Utils::isWindows() ? '0.0.0.0' : 'default';
+		$keys = Utils::isWindows() ? array('0.0.0.0') : array('0.0.0.0', 'default');
 		$gatewayIP = null;
 		foreach($output as $l){
 			$l = preg_replace('/\s+/', ' ',$l);
 			$parts = explode(" ", $l);
 			if(count($parts) <= $idx2)continue;
 			if($headerFound){
-				if($parts[$idx1] == $key){
+				if(in_array($parts[$idx1], $keys)){
 					$gatewayIP = $parts[$idx2];
 					break;
 				}

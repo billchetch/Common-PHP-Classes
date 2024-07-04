@@ -60,10 +60,11 @@ class DBObject{
 		//from the table name we can get columns
 		$t = self::getConfig('TABLE_NAME');
 		$sql = "select column_name from information_schema.columns where table_name = '$t'";
+		
 		$q = self::$dbh->query($sql);
 		$columns = array();
 		while($row = $q->fetch()){
-			$columns[] = $row['column_name'];
+			$columns[] = isset($row['column_name']) ? $row['column_name'] : $row['COLUMN_NAME'];
 		}
 		self::setConfig('TABLE_COLUMNS', $columns);
 		
@@ -89,7 +90,8 @@ class DBObject{
 		//SELECT_ROW_FILTER is a way to select a row other than by id, in particular if you pass data to the object that uniquely defines
 		//it and you then want to read from the DB to get the row ID (required for updating)
 		if(!empty(self::getConfig('SELECT_ROW_FILTER'))){
-			$sql = self::createSelectSQL(self::getConfig('SELECT_SQL'), self::getConfig('SELECT_ROW_FILTER'), null);
+			$filter = str_replace("'", "", self::getConfig('SELECT_ROW_FILTER'));
+			$sql = self::createSelectSQL(self::getConfig('SELECT_SQL'), $filter, null);
 			self::setConfig('SELECT_ROW_STATEMENT', self::$dbh->prepare($sql));
 			self::setConfig('SELECT_ROW_PARAMS', self::extractBoundParameters($sql));
 		}
@@ -108,12 +110,10 @@ class DBObject{
 	
 	public static function createInstance($rowdata = null, $readFromDB = self::READ_MISSING_VALUES_ONLY, $requireExistence = false){
 		self::init();
-		
 		$inst = new static($rowdata);
 		
 		if($readFromDB){
 			$inst->read($requireExistence);
-			
 			if($readFromDB == self::READ_MISSING_VALUES_ONLY && $rowdata){
 				foreach($rowdata as $k=>$v){
 					if($k == 'id')continue;
@@ -160,11 +160,11 @@ class DBObject{
 			}
 			$params = $p;
 			
-			
 			//now we deal with array values
 			foreach($params as $param=>$value){
+				unset($params[$param]);
+					
 				if(is_array($value)){
-					unset($params[$param]);
 					$replaceWith = "";
 					for($i = 0; $i < count($value); $i++){
 						$newParam = $param.$i;
@@ -177,8 +177,6 @@ class DBObject{
 				}
 			}
 		}
-		
-		
 		$stmt = self::$dbh->prepare($sql);
 			
 		if(empty($stmt))throw new Exception("No statement for collection query");
@@ -237,7 +235,7 @@ class DBObject{
 				}
 			}
 			if($endPos !== false){
-				$param = substr($ps, 0, $endPos);
+				$param = str_replace("'", "", substr($ps, 0, $endPos));
 				if(strpos($sql, ':'.$param) !== false){
 					array_push($params, $param);
 				}
@@ -473,8 +471,8 @@ class DBObject{
 					$vals[$param] = $this->rowdata[$param]; 
 				}
 			}
-			
 			$stmt->execute($vals);
+			
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			if($row){
 				$this->assignRowData($row);

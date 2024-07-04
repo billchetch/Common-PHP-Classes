@@ -33,7 +33,7 @@ class Config{
 	
 	public static function replaceKeysWithValues($str, $keyValuePairs){
 		foreach($keyValuePairs as $key=>$val){
-			if(!is_string($val))continue;
+			if(!is_string($val) && !is_numeric($val))continue;
 			$str = str_ireplace('{'.strtoupper($key).'}', $val, $str);
 		}
 		return $str;
