@@ -11,7 +11,7 @@ class Utils{
 	  $theta = $lon1 - $lon2;
 	  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
 	  $dist = acos($dist);
-	  $dist = rad2deg($dist);
+	  $dist = is_nan($dist) ? 0 : rad2deg($dist);
 	  $miles = $dist * 60 * 1.1515;
 	  $unit = strtoupper($unit);
 	
