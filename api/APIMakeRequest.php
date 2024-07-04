@@ -88,12 +88,13 @@ class APIMakeRequest extends APIRequest{
 					break;
 			}
 			
-			$data = curl_exec($ch); 
+			$data = curl_exec($ch);
+			echo $data; 	 
 		    $this->error = curl_error($ch);
 		    $this->errno = curl_errno($ch);
 		    $this->info = curl_getinfo($ch);
 		    curl_close($ch);
-		    
+	
 		    if($this->errno != 0){
 		    	throw new APIException("cURL error: ".$this->error, $this->errno);
 		    } else if($this->info['http_code'] >= 400){
