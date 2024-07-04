@@ -20,8 +20,17 @@ abstract class APIHandleRequest extends APIRequest{
 		header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 		header("Pragma: no-cache"); // HTTP 1.0.
 		header("Expires: 0"); // Proxies.
-		
-		echo is_array($data2output) ? json_encode($data2output) : $data2output;
+
+		$output = null;
+		if(is_array($data2output)){
+			$output = json_encode($data2output);
+			if(json_last_error()){
+				throw new Exception("JSON error: ".json_last_error_msg());
+			}
+		} else {
+			$output = $data2output;
+		}
+		echo $output;
 	}
 	
 	public static function exception($e, $httpCode = 404, $httpMessage = "Not Found"){
