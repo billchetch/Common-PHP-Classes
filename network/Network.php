@@ -76,8 +76,8 @@ class Network{
 				$stats['received'] = trim(str_ireplace('received = ', '', $stats['received']));
 				$stats['lost'] = $stats['transmitted'] - $stats['received'];
 			} else {
-				$stats['transmitted'] = trim(str_ireplace('packets transmitted', '', $stats['transmitted']));
-				$stats['received'] = trim(str_ireplace('packets received', '', $stats['received']));
+				$stats['transmitted'] = trim(str_ireplace(array("packets", "transmitted", " "), '', $stats['transmitted']));
+				$stats['received'] = trim(str_ireplace(array("packets", "received", " "), '', $stats['received']));
 				$stats['lost'] = $stats['transmitted'] - $stats['received'];
 			}
 			$stats['loss'] = $stats['lost'] / $stats['transmitted'];
