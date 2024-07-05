@@ -114,7 +114,11 @@ class APIMakeRequest extends APIRequest{
 			$this->setID(null);
 			$this->set('request', $req);
 			$this->read();
-			$this->set('data', json_encode($data));
+			$encoded = json_encode($data);
+			if(json_last_error()){
+				throw new Exception("JSON encoding error on request $req: ".json_last_error_msg());
+			}
+			$this->set('data', $encoded);
 			$this->write();
 		}
 	}
