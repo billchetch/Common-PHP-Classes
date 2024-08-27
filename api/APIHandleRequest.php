@@ -130,7 +130,7 @@ abstract class APIHandleRequest extends APIRequest{
 				break;
 		}
 
-		$resourcePathBase = getcwd()."\\resources\\$resourceDirectory\\";
+		$resourcePathBase = getcwd()."/resources/$resourceDirectory/";
 		$resourcePaths = array();
 		array_push($resourcePaths, $resourcePathBase.$resourceID);
 		$this->addResourePaths($resourcePaths, $resourcePathBase, $resourceType, $resourceDirectory, $resourceID);
