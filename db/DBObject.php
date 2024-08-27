@@ -335,7 +335,7 @@ class DBObject{
 	
 	public static function tzoffset(){
 		if(empty(self::$dbh))throw new Exception("Database has not been set");
-		$sql = "SELECT CONCAT(IF(NOW()>=UTC_TIMESTAMP,'+','-'),TIME_FORMAT(TIMEDIFF(NOW(),UTC_TIMESTAMP),'%H%m'))";
+		$sql = "SELECT CONCAT(IF(NOW()>=utc_timestamp(),'+','-'),TIME_FORMAT(TIMEDIFF(NOW(),utc_timestamp()),'%H%i'))";
 		$stmt = self::$dbh->query($sql);
 		$row = $stmt->fetch();
 		return $row[0];
