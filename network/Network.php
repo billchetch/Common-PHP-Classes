@@ -28,17 +28,17 @@ class Network{
 		}
 	}
 	
-	static public function hasInternet(){
+	static public function hasInternet($useInterface = null){
 		$testDomain = Config::get('PING_HAS_INTERNET_DOMAIN', 'google.com');
 		try{
-			$result = self::ping($testDomain, 1, 4000);
+			$result = self::ping($testDomain, 1, 4000, $useInterface);
 			return (isset($result['loss']) && $result['loss'] == 0);
 		} catch (Exception $e){
 			return false;
 		}
 	}
 	
-	static public function ping($domain, $count = 1, $waitInMs = 10000){
+	static public function ping($domain, $count = 1, $waitInMs = 10000, $useInterface = null){
 		if(empty($domain))throw new Exception("Network::ping No domain to Ping");
 		$exec = '';
 		$statistics = '';
@@ -46,9 +46,11 @@ class Network{
 		$waitInSecs = $waitInMs / 1000;
 		if(Utils::isWindows()){
 			$exec = "ping -n $count -w $waitInMs $domain";
+			if($useInterface)throw new Exception("Network::ping Unable to specify an interface in Windows");
 			$statistics = "ping statistics for";
 		} else {
 			$exec = "ping -c $count -W $waitInSecs $domain";
+			if($useInterface)$exec.= " -I $useInterface";
 			$statistics = "--- $domain ping statistics ---";
 		}
 		$output = array();
