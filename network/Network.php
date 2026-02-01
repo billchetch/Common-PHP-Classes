@@ -10,9 +10,13 @@ class Network{
 		if($useServer && isset($_SERVER) && isset($_SERVER['SERVER_ADDR'])){
 			$localIP = $_SERVER['SERVER_ADDR'];
 		} else {
-			$hostname = trim(exec("hostname -I"));
-			$parts = explode(' ', $hostname);
-			$localIP = $parts[0];
+			if(php_uname('s') == 'Darwin'){
+				$localIP = "N/A";
+			} else {
+				$hostname = trim(exec("hostname -I"));
+				$parts = explode(' ', $hostname);
+				$localIP = $parts[0];
+			}
 		}
 		return $localIP;
 	}
